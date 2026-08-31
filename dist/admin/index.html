@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XORONIQ — Admin Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Feather Icons for lightweight UI icons -->
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script type="module" crossorigin src="/assets/admin-Dkufkt0U.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="stylesheet" crossorigin href="/assets/admin-DkWbZnd0.css">
+</head>
+<body>
+
+  <!-- ========================================================================= -->
+  <!-- 1. LOGIN SCREEN -->
+  <!-- ========================================================================= -->
+  <div id="auth-screen" class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="brand-badge">
+          <img src="/assets/logo.png" alt="XORONIQ" class="brand-logo" onerror="this.style.display='none'">
+        </div>
+        <h2>Admin Command Center</h2>
+        <p>Private dispatch & store management console.</p>
+      </div>
+
+      <div id="auth-alert" class="alert hidden"></div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label>Admin Email Address</label>
+          <input type="email" id="login-email" value="info@xoroniq.store" required autocomplete="username" />
+        </div>
+
+        <div class="form-group">
+          <label>Admin Password</label>
+          <div class="password-input-wrap">
+            <input type="password" id="login-password" placeholder="••••••••••••" required autocomplete="current-password" />
+            <button type="button" id="toggle-password" class="icon-btn" title="Toggle password visibility">
+              <i data-feather="eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" id="btn-login" class="btn-primary">
+            <i data-feather="lock"></i>
+            <span>Authenticate Admin</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. AUTHENTICATED ADMIN DASHBOARD -->
+  <!-- ========================================================================= -->
+  <div id="dashboard-screen" class="dashboard-wrapper hidden">
+    <!-- Top Navigation Header -->
+    <header class="admin-header">
+      <div class="header-left">
+        <img src="/assets/logo.png" alt="XORONIQ" class="header-logo" onerror="this.style.display='none'">
+        <div class="header-meta">
+          <div class="title-row">
+            <h1>XORONIQ Admin Command Center</h1>
+            <span class="badge badge-success" id="admin-role-badge">Role: Admin</span>
+          </div>
+          <p class="admin-email-text">
+            Authenticated Admin: <strong id="current-user-email">info@xoroniq.store</strong>
+          </p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button id="btn-refresh" class="btn-secondary" title="Refresh Data">
+          <i data-feather="refresh-cw"></i>
+          <span>Sync</span>
+        </button>
+        <button id="btn-export-csv" class="btn-secondary" title="Export Orders to CSV">
+          <i data-feather="download"></i>
+          <span>Export CSV</span>
+        </button>
+        <button id="btn-logout" class="btn-danger" title="Sign Out">
+          <i data-feather="log-out"></i>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <!-- KPI Metric Cards -->
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span>Total Revenue</span>
+            <i data-feather="dollar-sign" class="kpi-icon icon-emerald"></i>
+          </div>
+          <div class="kpi-value" id="kpi-revenue">₹0</div>
+          <div class="kpi-subtitle">Live Firestore Transactions</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span>Total Orders</span>
+            <i data-feather="package" class="kpi-icon icon-red"></i>
+          </div>
+          <div class="kpi-value" id="kpi-total-orders">0</div>
+          <div class="kpi-subtitle"><span id="kpi-paid-orders">0</span> Paid & Confirmed</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span>Average Order Value</span>
+            <i data-feather="trending-up" class="kpi-icon icon-blue"></i>
+          </div>
+          <div class="kpi-value" id="kpi-aov">₹0</div>
+          <div class="kpi-subtitle">Per Customer Basket</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span>Active Customers</span>
+            <i data-feather="users" class="kpi-icon icon-purple"></i>
+          </div>
+          <div class="kpi-value" id="kpi-customers">0</div>
+          <div class="kpi-subtitle">Unique Verified Buyers</div>
+        </div>
+      </section>
+
+      <!-- Search & Filters Toolbar -->
+      <section class="toolbar">
+        <div class="filter-tabs" id="status-filters">
+          <button class="filter-tab active" data-status="All">All (<span id="count-all">0</span>)</button>
+          <button class="filter-tab" data-status="PAID">PAID (<span id="count-paid">0</span>)</button>
+          <button class="filter-tab" data-status="CONFIRMED">CONFIRMED (<span id="count-confirmed">0</span>)</button>
+          <button class="filter-tab" data-status="DISPATCHED">DISPATCHED (<span id="count-dispatched">0</span>)</button>
+          <button class="filter-tab" data-status="DELIVERED">DELIVERED (<span id="count-delivered">0</span>)</button>
+          <button class="filter-tab" data-status="CANCELLED">CANCELLED (<span id="count-cancelled">0</span>)</button>
+        </div>
+
+        <div class="search-box">
+          <i data-feather="search" class="search-icon"></i>
+          <input type="text" id="search-input" placeholder="Search by name, phone, PIN, Razorpay ID..." />
+        </div>
+      </section>
+
+      <!-- Orders Data Table -->
+      <section class="table-container">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Customer & Contact</th>
+              <th>Package</th>
+              <th>Amount & Razorpay ID</th>
+              <th>Detailed Shipping Destination</th>
+              <th>Status</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody">
+            <tr>
+              <td colspan="6" class="table-empty">
+                <div class="loading-spinner"></div>
+                <p>Loading real-time orders from Firebase Firestore...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 3. ORDER DETAILS INSPECT MODAL -->
+  <!-- ========================================================================= -->
+  <div id="order-modal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <span class="badge badge-red" id="modal-pkg-badge">XORONIQ X3</span>
+          <span class="badge badge-success" id="modal-status-badge">PAID</span>
+        </div>
+        <button id="btn-close-modal" class="icon-btn"><i data-feather="x"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <h3 id="modal-order-id">Order Details</h3>
+        <p class="modal-sub" id="modal-razorpay-id">Razorpay Payment ID</p>
+
+        <div class="modal-divider"></div>
+
+        <div class="modal-info-grid">
+          <div class="info-row">
+            <span class="info-label">Customer Name:</span>
+            <strong class="info-val" id="modal-customer-name">Rajesh Sharma</strong>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Email:</span>
+            <span class="info-val" id="modal-customer-email">rajesh@example.com</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Phone:</span>
+            <span class="info-val" id="modal-customer-phone">+91 9820123456</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Amount Paid:</span>
+            <strong class="info-val text-emerald" id="modal-total-price">₹899</strong>
+          </div>
+        </div>
+
+        <div class="address-box">
+          <div class="address-box-title">Full Courier Shipping Address:</div>
+          <p id="modal-address-text" class="address-text">
+            Flat 402, Signature Residency, Linking Road, Bandra West, Near Grand Hotel, Mumbai, Maharashtra - 400050 (Home)
+          </p>
+          <div id="modal-notes" class="delivery-notes hidden"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <a id="btn-whatsapp-customer" href="#" target="_blank" class="btn-whatsapp">
+          <i data-feather="message-circle"></i>
+          <span>WhatsApp Customer</span>
+        </a>
+        <button id="btn-close-modal-bottom" class="btn-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
